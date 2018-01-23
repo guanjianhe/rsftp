@@ -109,6 +109,13 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
                 android:defaultValue="@string/no_display_default"
                 android:key="noDisplay"
                 android:title="@string/no_display_label"/>
+
+            <ListPreference
+                android:defaultValue="0"
+                android:entries="@array/pref_list_encode_values"
+                android:entryValues="@array/pref_list_encode_keys"
+                android:key="server_encode"
+                android:title="@string/server_encode"/>
         </PreferenceScreen>
 
     </PreferenceCategory>

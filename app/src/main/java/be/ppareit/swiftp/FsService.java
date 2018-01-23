@@ -20,6 +20,7 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
 
 package be.ppareit.swiftp;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -96,13 +97,51 @@ public class FsService extends Service implements Runnable {
         }
     }
 
+    public static String getSessionEncoding() {
+        String encode = "UTF-8";
+        try {
+            if (null != serverService) {
+                Service service = serverService.get();
+                if (null != service) {
+                    encode = System.getSharedSessionEncode(service);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "get session encode error.", e);
+        }
+        return encode;
+    }
+
+    public void updateEncoding(String encoding) {
+        synchronized (this) {
+            for (int i = 0; i < sessionThreads.size(); i++) {
+                try {
+                    SessionThread session = sessionThreads.get(i);
+                    session.setEncoding(encoding);
+                    Log.d(TAG, i + " update session encoding: " + session);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void updateServerSessionEncoding(String encoding) {
+        if (null != serverService) {
+            Service service = serverService.get();
+            if (null != service) {
+                ((FsService) service).updateEncoding(encoding);
+            }
+        }
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
         shouldExit = false;
 
+        serverService = new WeakReference<>(this);
         if (System.isAndroidO()) {
-            serverService = new WeakReference<>(this);
             FsNotification.startingNotification(this);
         }
 
@@ -361,6 +400,7 @@ public class FsService extends Service implements Runnable {
         }
         if (!connected) {
             Log.d(TAG, "isConnectedToLocalNetwork: see if it is an WIFI AP");
+            @SuppressLint("WifiManagerLeak")
             WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             try {
                 Method method = wm.getClass().getDeclaredMethod("isWifiApEnabled");

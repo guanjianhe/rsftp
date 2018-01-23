@@ -246,6 +246,22 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
             }
         });
 
+        ListPreference serverEncode = findPref("server_encode");
+        CharSequence entry = serverEncode.getEntry();
+        log("server encode preference default entry: " + entry);
+        serverEncode.setSummary(entry == null ? "UTF-8" : entry);
+        serverEncode.setOnPreferenceChangeListener((preference, newValue) -> {
+            String[] array = getResources().getStringArray(R.array.pref_list_encode_values);
+            String str = String.valueOf(newValue);
+            int index = Integer.parseInt(str);
+            str = array[index];
+            log("server encode value: " + str);
+            serverEncode.setSummary(str);
+            System.setSharedSessionEncode(getActivity(), str);
+            FsService.updateServerSessionEncoding(str);
+            return true;
+        });
+
         ListPreference theme = findPref("theme");
         theme.setSummary(theme.getEntry());
         theme.setOnPreferenceChangeListener((preference, newValue) -> {

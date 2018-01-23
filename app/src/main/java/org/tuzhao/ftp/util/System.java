@@ -2,6 +2,7 @@ package org.tuzhao.ftp.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
@@ -27,6 +28,7 @@ public final class System {
 
     public static final String SHARED_CONFIG_FILE = "config";
     public static final String SHARED_WIFI_KEY = "wifi_select";
+    private static final String SHARED_SESSION_ENCODE = "session_encode";
 
     public static boolean isIntentAvailable(Context context, Intent intent) {
         final PackageManager packageManager = context.getPackageManager();
@@ -95,6 +97,20 @@ public final class System {
 
     private static void log(String msg) {
         Log.i(TAG, msg);
+    }
+
+    public static String getSharedSessionEncode(Context context) {
+        SharedPreferences sp =
+            context.getSharedPreferences(SHARED_CONFIG_FILE, Context.MODE_PRIVATE);
+        return sp.getString(SHARED_SESSION_ENCODE, "UTF-8");
+    }
+
+    public static boolean setSharedSessionEncode(Context context, String encode) {
+        SharedPreferences sp =
+            context.getSharedPreferences(SHARED_CONFIG_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(SHARED_SESSION_ENCODE, encode);
+        return editor.commit();
     }
 
 }

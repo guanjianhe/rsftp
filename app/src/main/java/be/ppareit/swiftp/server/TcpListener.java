@@ -19,10 +19,11 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
 
 package be.ppareit.swiftp.server;
 
+import android.util.Log;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import android.util.Log;
 import be.ppareit.swiftp.FsService;
 
 public class TcpListener extends Thread {
@@ -50,9 +51,12 @@ public class TcpListener extends Thread {
         try {
             while (true) {
                 Socket clientSocket = listenSocket.accept();
+                String encode = FsService.getSessionEncoding();
+                Log.d(TAG, "encode for new session thread:  " + encode);
                 Log.i(TAG, "New connection, spawned thread");
-                SessionThread newSession = new SessionThread(clientSocket,
-                        new LocalDataSocket());
+                SessionThread newSession =
+                    new SessionThread(clientSocket, new LocalDataSocket());
+                newSession.setEncoding(encode);
                 newSession.start();
                 ftpServerService.registerSessionThread(newSession);
             }

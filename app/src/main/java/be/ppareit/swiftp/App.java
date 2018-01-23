@@ -29,7 +29,7 @@ import android.net.wifi.WifiManager;
 
 import net.vrallev.android.cat.Cat;
 
-import lombok.val;
+import java.util.List;
 
 public class App extends Application {
 
@@ -71,10 +71,10 @@ public class App extends Application {
 
     public static boolean isPaidVersionInstalled() {
         Context context = getAppContext();
-        val pm = context.getPackageManager();
-        val packages = pm.getInstalledApplications(0);
+        PackageManager pm = context.getPackageManager();
+        List<ApplicationInfo> packages = pm.getInstalledApplications(0);
         for (ApplicationInfo packageInfo : packages) {
-            if(packageInfo.packageName.equals("be.ppareit.swiftp"))
+            if (packageInfo.packageName.equals("be.ppareit.swiftp"))
                 return true;
         }
         return false;

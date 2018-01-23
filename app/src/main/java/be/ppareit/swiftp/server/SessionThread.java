@@ -55,7 +55,7 @@ public class SessionThread extends Thread {
     private boolean sendWelcomeBanner;
     // FTP control sessions should start out in ASCII, according to the RFC. However, many clients
     // don't turn on UTF-8 even though they support it, so we just turn it on by default.
-    protected String encoding = "UTF-8";
+    protected volatile String encoding = "UTF-8";
     long offset = -1; // where to start append when using REST/RANG
     long endPosition = -1; // where to stop append when using RANG
     private String[] formatTypes = {"Size", "Modify", "Type", "Perm"}; // types option of MLST/MLSD
