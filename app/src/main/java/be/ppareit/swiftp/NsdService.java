@@ -114,7 +114,7 @@ public class NsdService extends Service {
                     // all kinds of problems with the NsdManager, give it
                     // some extra time before I make next call
                     Thread.sleep(500);
-                    if (running == false) {
+                    if (!running) {
                         Log.e(TAG, "NsdManager is no longer needed, bailing out");
                         mNsdManager = null;
                         return;
@@ -122,7 +122,7 @@ public class NsdService extends Service {
                     mNsdManager.registerService(serviceInfo,
                             NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
                 } catch (Exception e) {
-                    Log.e(TAG, "onCreate: Failed to register NsdManager");
+                    Log.e(TAG, "onCreate: Failed to register NsdManager", e);
                     mNsdManager = null;
                 }
             } else {
@@ -151,7 +151,7 @@ public class NsdService extends Service {
         try {
             mNsdManager.unregisterService(mRegistrationListener);
         } catch (Exception e) {
-            Log.e(TAG, "Unable to unregister NSD service, error: " + e.getMessage());
+            Log.e(TAG, "Unable to unregister NSD service, error: ", e);
         }
         mNsdManager = null;
     }
