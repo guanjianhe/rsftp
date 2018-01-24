@@ -19,9 +19,10 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
 
 package be.ppareit.swiftp.server;
 
+import android.util.Log;
+
 import java.io.File;
 
-import android.util.Log;
 import be.ppareit.swiftp.MediaUpdater;
 
 public class CmdRMD extends FtpCmd implements Runnable {
@@ -80,14 +81,20 @@ public class CmdRMD extends FtpCmd implements Runnable {
      * @return Whether the operation completed successfully
      */
     protected boolean recursiveDelete(File toDelete) {
+        if (null == toDelete) {
+            return false;
+        }
         if (!toDelete.exists()) {
             return false;
         }
         if (toDelete.isDirectory()) {
             // If any of the recursive operations fail, then we return false
             boolean success = true;
-            for (File entry : toDelete.listFiles()) {
-                success &= recursiveDelete(entry);
+            final File[] files = toDelete.listFiles();
+            if (null != files) {
+                for (File entry : files) {
+                    success &= recursiveDelete(entry);
+                }
             }
             Log.d(TAG, "Recursively deleted: " + toDelete);
             return success && toDelete.delete();
