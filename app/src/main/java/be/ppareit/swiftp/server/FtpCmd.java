@@ -19,10 +19,11 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
 
 package be.ppareit.swiftp.server;
 
+import android.util.Log;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 
-import android.util.Log;
 import be.ppareit.swiftp.FsSettings;
 
 public abstract class FtpCmd implements Runnable {
@@ -125,9 +126,13 @@ public abstract class FtpCmd implements Runnable {
             return;
         }
 
-        if (session.isUserLoggedIn()) {
+        final boolean a = session.isUserLoggedIn();
+        final boolean b = session.isAnonymouslyLoggedIn();
+        Log.d(TAG, "is user login: " + a + ", is anonymously login: " + b + ", cmd: " + cmdInstance.getClass().getSimpleName());
+
+        if (a) {
             cmdInstance.run();
-        } else if (session.isAnonymouslyLoggedIn() == true) {
+        } else if (b) {
             boolean validCmd = false;
             for (Class<?> cl : allowedCmdsWhileAnonymous) {
                 if (cmdInstance.getClass().equals(cl)) {
@@ -135,14 +140,14 @@ public abstract class FtpCmd implements Runnable {
                     break;
                 }
             }
-            if (validCmd == true) {
+            if (validCmd) {
                 cmdInstance.run();
             } else {
                 session.writeString("530 Guest user is not allowed to use that command\r\n");
             }
         } else if (cmdInstance.getClass().equals(CmdUSER.class)
-                || cmdInstance.getClass().equals(CmdPASS.class)
-                || cmdInstance.getClass().equals(CmdQUIT.class)) {
+                       || cmdInstance.getClass().equals(CmdPASS.class)
+                       || cmdInstance.getClass().equals(CmdQUIT.class)) {
             cmdInstance.run();
         } else {
             session.writeString("530 Login first with USER and PASS, or QUIT\r\n");

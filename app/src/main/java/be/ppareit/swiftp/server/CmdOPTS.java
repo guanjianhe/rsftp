@@ -83,7 +83,7 @@ public class CmdOPTS extends FtpCmd implements Runnable {
                 // OK, whatever. Don't really know what to do here. We
                 // always operate in UTF8 mode.
                 if (optVal.equals("ON")) {
-                    Log.d(TAG, "Got OPTS UTF8 ON");
+                    Log.w(TAG, "Got OPTS UTF8 ON, we will always use UTF8 mode.");
                     sessionThread.setEncoding("UTF-8");
                 } else {
                     Log.i(TAG, "Ignoring OPTS UTF8 for something besides ON");

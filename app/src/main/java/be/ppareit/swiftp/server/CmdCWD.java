@@ -19,10 +19,10 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
 
 package be.ppareit.swiftp.server;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
-
-import android.util.Log;
 
 public class CmdCWD extends FtpCmd implements Runnable {
     private static final String TAG = CmdCWD.class.getSimpleName();
@@ -42,6 +42,7 @@ public class CmdCWD extends FtpCmd implements Runnable {
         String errString = null;
         mainblock: {
             newDir = inputPathToChrootedFile(sessionThread.getWorkingDir(), param);
+            Log.d(TAG, "input path for choose: " + newDir.getAbsolutePath());
 
             // Ensure the new path does not violate the chroot restriction
             if (violatesChroot(newDir)) {

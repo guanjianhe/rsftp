@@ -26,9 +26,9 @@ along with SwiFTP.  If not, see <http://www.gnu.org/licenses/>.
 
 package be.ppareit.swiftp.server;
 
-import java.io.File;
-
 import android.util.Log;
+
+import java.io.File;
 
 public class CmdNLST extends CmdAbstractListing implements Runnable {
     private static final String TAG = CmdNLST.class.getSimpleName();
@@ -65,11 +65,15 @@ public class CmdNLST extends CmdAbstractListing implements Runnable {
                     errString = "450 Listing target violates chroot\r\n";
                     break mainblock;
                 } else if (fileToList.isFile()) {
+                    /*
                     // Bernstein suggests that NLST should fail when a
                     // parameter is given and the parameter names a regular
                     // file (not a directory).
                     errString = "550 NLST for regular files is unsupported\r\n";
                     break mainblock;
+                    */
+                    //fix support mget command
+                    Log.d(TAG, "cmd NLST for a regular file.");
                 }
             }
             String listing;
