@@ -12,8 +12,8 @@ android {
         applicationId "org.tuzhao.ftp"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 10005
-        versionName "1.1.30"
+        versionCode 10006
+        versionName "1.1.35"
         // dex突破65535的限制
         multiDexEnabled true
         // 默认渠道
@@ -110,7 +110,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'net.vrallev.android:cat:1.0.2'
     compile 'com.twofortyfouram:android-plugin-client-sdk-for-locale:4.0.2'
-    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    compile 'com.android.support:appcompat-v7:26.0.0-beta1'
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     provided 'org.projectlombok:lombok:1.16.6'
