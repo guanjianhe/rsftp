@@ -52,49 +52,69 @@ public class CmdNLST extends CmdAbstractListing implements Runnable {
                 // Ignore options to list, which start with a dash
                 param = "";
             }
+            File[] listFiles = null;
             File fileToList = null;
             if (param.equals("")) {
                 fileToList = sessionThread.getWorkingDir();
             } else {
+                /*
+                 * support wildcard, like '*.png'
+                 */
                 if (param.contains("*")) {
-                    errString = "550 NLST does not support wildcards\r\n";
-                    break mainblock;
-                }
-                fileToList = new File(sessionThread.getWorkingDir(), param);
-                if (violatesChroot(fileToList)) {
-                    errString = "450 Listing target violates chroot\r\n";
-                    break mainblock;
-                } else if (fileToList.isFile()) {
-                    /*
-                    // Bernstein suggests that NLST should fail when a
-                    // parameter is given and the parameter names a regular
-                    // file (not a directory).
-                    errString = "550 NLST for regular files is unsupported\r\n";
-                    break mainblock;
-                    */
-                    //fix support mget command
-                    Log.d(TAG, "cmd NLST for a regular file.");
+                    final String regex = covertWildcardToRegex(param);
+                    File dir = sessionThread.getWorkingDir();
+                    listFiles = dir.listFiles(item -> {
+                        if (null != item) {
+                            if (!item.isDirectory()) {
+                                return item.getName().matches(regex);
+                            }
+                        }
+                        return false;
+                    });
+                } else {
+                    fileToList = new File(sessionThread.getWorkingDir(), param);
+                    if (violatesChroot(fileToList)) {
+                        errString = "450 Listing target violates chroot\r\n";
+                        break mainblock;
+                    } else if (fileToList.isFile()) {
+                        /*
+                        // Bernstein suggests that NLST should fail when a
+                        // parameter is given and the parameter names a regular
+                        // file (not a directory).
+                        errString = "550 NLST for regular files is unsupported\r\n";
+                        break mainblock;
+                        */
+                        //fix support mget command
+                        Log.d(TAG, "cmd NLST for a regular file.");
+                    }
                 }
             }
-            String listing;
-            if (fileToList.isDirectory()) {
+            String listing = null;
+            if (null != fileToList) {
+                if (fileToList.isDirectory()) {
+                    StringBuilder response = new StringBuilder();
+                    errString = listDirectory(response, fileToList);
+                    if (errString != null) {
+                        break mainblock;
+                    }
+                    listing = response.toString();
+                } else {
+                    listing = makeLsString(fileToList);
+                    if (listing == null) {
+                        errString = "450 Couldn't list that file\r\n";
+                        break mainblock;
+                    }
+                }
+            }
+            if (null != listFiles) {
                 StringBuilder response = new StringBuilder();
-                errString = listDirectory(response, fileToList);
-                if (errString != null) {
+                errString = listFileArray(response, listFiles, null);
+                if (null != errString) {
                     break mainblock;
                 }
                 listing = response.toString();
-            } else {
-                listing = makeLsString(fileToList);
-                if (listing == null) {
-                    errString = "450 Couldn't list that file\r\n";
-                    break mainblock;
-                }
             }
             errString = sendListing(listing);
-            if (errString != null) {
-                break mainblock;
-            }
         }
 
         if (errString != null) {

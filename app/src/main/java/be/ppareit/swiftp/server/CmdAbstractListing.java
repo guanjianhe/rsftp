@@ -56,6 +56,10 @@ public abstract class CmdAbstractListing extends FtpCmd {
 
         // Get a listing of all files and directories in the path
         File[] entries = dir.listFiles();
+        return listFileArray(response, entries, dir);
+    }
+
+    public String listFileArray(StringBuilder response, File[] entries, File srcDir) {
         if (entries == null) {
             return "500 Couldn't list directory. Check config and mount status.\r\n";
         }
@@ -67,7 +71,11 @@ public abstract class CmdAbstractListing extends FtpCmd {
             // breaks the listing comparator (unable to reproduce)
             Log.e(TAG, "Unable to sort the listing: " + e.getMessage());
             // play for sure, and get back the entries
-            entries = dir.listFiles();
+            if (null != srcDir) {
+                entries = srcDir.listFiles();
+            } else {
+                return "500 Couldn't sor file array,please try again later.\r\n";
+            }
         }
         for (File entry : entries) {
             String curLine = makeLsString(entry);
@@ -81,6 +89,9 @@ public abstract class CmdAbstractListing extends FtpCmd {
     // Send the directory listing over the data socket. Used by CmdLIST and CmdNLST.
     // Returns an error string on failure, or returns null if successful.
     protected String sendListing(String listing) {
+        if (null == listing) {
+            return "500 cmd *LIST get error\r\n";
+        }
         if (sessionThread.openDataSocket()) {
             Log.d(TAG, "LIST/NLST done making socket");
         } else {
@@ -115,4 +126,20 @@ public abstract class CmdAbstractListing extends FtpCmd {
             return lhs.getName().compareToIgnoreCase(rhs.getName());
         }
     };
+
+    /**
+     * covert wildcard to regex
+     */
+    final String covertWildcardToRegex(String wildcard) {
+        String regex;
+        regex = wildcard.replace('.', '#');
+        regex = regex.replaceAll("#", "\\\\.");
+        regex = regex.replace('*', '#');
+        regex = regex.replaceAll("#", ".*");
+        regex = regex.replace('?', '#');
+        regex = regex.replaceAll("#", ".?");
+        regex = "^" + regex + "$";
+        Log.d(TAG, "covert wildcard " + wildcard + " to regex " + regex);
+        return regex;
+    }
 }
